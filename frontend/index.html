@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CyberShield AI — S.S.Hemanth Kumar's Cybersecurity Academy</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts for typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- BACKGROUND ENGINE CANVAS GRAPHICS -->
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="particles" id="particles"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <!-- TOAST DISPATCH SYSTEM -->
+  <div class="toast" id="toast">
+    <span class="toast-icon" id="toast-icon">🛡️</span>
+    <span id="toast-msg">Secure connection established!</span>
+  </div>
+
+  <!-- APPLICATION HEADER (NAVIGATION HUB) -->
+  <nav id="navbar">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-icon">🛡️</div>
+      CyberShield<span style="color:var(--cyan)">AI</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#modules">Modules</a></li>
+      <li><a href="#labs">Labs</a></li>
+      <li><a href="#practice">AI Path</a></li>
+      <li><a href="#chat">AI Terminal</a></li>
+      <li><a href="#certs">Credentials</a></li>
+    </ul>
+    <a href="#practice" class="nav-cta">Initialize Academy</a>
+    <div class="nav-hamburger" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <!-- HERO STAGE ENTRY -->
+  <section id="hero">
+    <div class="scan-line"></div>
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        S.S.Hemanth Kumar's Cybersecurity Academy
+      </div>
+      <h1 class="hero-title">Master Cybersecurity.<br/>From Ground Zero<br/>to <span style="-webkit-text-fill-color:var(--green)">Enterprise Elite.</span></h1>
+      <p class="hero-sub">An enterprise-grade, RAG-driven AI cybersecurity learning matrix. Dissect production network patterns, engineer local infrastructure configurations inside isolation vectors, and simulate real context-driven attacks under automated guidance.</p>
+      <p class="hero-name-tag">// Platform Engineer: S.S.Hemanth Kumar — Security Researcher</p>
+      <div class="hero-buttons">
+        <a href="#practice" class="btn-primary">🚀 Launch Adaptive Matrix</a>
+        <a href="#labs" class="btn-secondary">⚙️ Configure Target Labs</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">12+</span><span class="stat-label">Production Domains</span></div>
+        <div class="stat"><span class="stat-num">50+</span><span class="stat-label">Target Infrastructure Exercises</span></div>
+        <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Isolated Labs</span></div>
+      </div>
+    </div>
+
+    <!-- Hero terminal styling -->
+    <div class="hero-right">
+      <div class="terminal-card">
+        <div class="terminal-bar">
+          <span class="dot-red"></span>
+          <span class="dot-yellow"></span>
+          <span class="dot-green"></span>
+          <span class="terminal-title">SHIELD_SECURE_LINK.SH</span>
+        </div>
+        <div class="terminal-body" id="hero-terminal-body">
+          <span class="t-line"><span class="t-prompt">visitor@cybershield:~$</span> <span class="t-cmd">./init_handshake.sh</span></span>
+          <span class="t-line t-output">Initializing encrypted socket channel...</span>
+          <span class="t-line t-output">Establishing host-only isolation vectors...</span>
+          <span class="t-line t-warn">WARNING: Sandbox routing rules detected. WAN packets blocked.</span>
+          <span class="t-line t-success">SUCCESS: Local subnet mapping secure at 10.0.2.0/24.</span>
+          <span class="t-line"><span class="t-prompt">visitor@cybershield:~$</span> <span class="t-cmd">cybershield --status</span></span>
+          <span class="t-line t-output">Mentor Core: Active [RAG Model Online]</span>
+          <span class="t-line"><span class="t-prompt">visitor@cybershield:~$</span> <span class="cursor-blink"></span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP SECTION -->
+  <section id="roadmap" class="reveal">
+    <div class="section-tag">Training Vector</div>
+    <h2 class="section-title">Syllabus <span>Roadmap Tracks</span></h2>
+    <p class="section-sub">Navigate through standardized pathways designed to transition your skill profile from theoretical concepts to field-ready operations.</p>
+    
+    <div class="roadmap-grid">
+      <div class="road-card">
+        <span class="road-num">01 / FOUNDATIONS</span>
+        <span class="road-icon">🌐</span>
+        <h3>Network & Linux Security Baselines</h3>
+        <p>Master TCP/IP headers, routing schemas, subnet configurations, and system hardening rules inside isolated VirtualBox subnets.</p>
+        <span class="road-badge badge-beginner">Beginner Track</span>
+      </div>
+      <div class="road-card">
+        <span class="road-num">02 / WEB OFFENSE</span>
+        <span class="road-icon">🛡️</span>
+        <h3>Web Application Pentesting</h3>
+        <p>Inspect parameters, manipulate proxy interceptions using Burp Suite, and audit OWASP Top 10 vectors (SQLi, CSRF, XSS).</p>
+        <span class="road-badge badge-inter">Intermediate Track</span>
+      </div>
+      <div class="road-card">
+        <span class="road-num">03 / INFRASTRUCTURE</span>
+        <span class="road-icon">⚙️</span>
+        <h3>Target Network Exploitation</h3>
+        <p>Conduct active scans with Nmap, construct customized auxiliary modules in Metasploit, and exploit target assets.</p>
+        <span class="road-badge badge-advanced">Advanced Track</span>
+      </div>
+      <div class="road-card">
+        <span class="road-num">04 / CUSTOM DEV</span>
+        <span class="road-icon">⚡</span>
+        <h3>Exploit Engineering & RAG</h3>
+        <p>Design buffer overflows, automate scanning scripts, and integrate AI contextual engines for custom payload generation.</p>
+        <span class="road-badge badge-expert">Expert Track</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACADEMY SYLLABUS MODULES -->
+  <section id="modules" class="reveal">
+    <div class="section-tag">Course Syllabus</div>
+    <h2 class="section-title">Syllabus <span>Deep Dive Modules</span></h2>
+    <p class="section-sub">Select a security track to explore its constituent topics and learning deliverables.</p>
+
+    <div class="modules-wrapper">
+      <div class="module-tab-bar">
+        <button class="tab-btn active" data-target="m-networks">Network Security</button>
+        <button class="tab-btn" data-target="m-web">Web App Pentesting</button>
+        <button class="tab-btn" data-target="m-infra">Offensive Operations</button>
+        <button class="tab-btn" data-target="m-response">Threat Incident Response</button>
+      </div>
+
+      <!-- Network Security Panel -->
+      <div class="module-panel active" id="m-networks">
+        <div class="topics-grid">
+          <div class="topic-item">
+            <span class="topic-icon">🔌</span>
+            <div>
+              <h4>TCP/IP Handshake Mechanics</h4>
+              <p>Analyze SYN, SYN-ACK, and ACK packets. Identify half-open sockets and implement SYN cookie mitigations.</p>
+            </div>
+          </div>
+          <div class="topic-item">
+            <span class="topic-icon">📡</span>
+            <div>
+              <h4>DNS Architecture & Spoofing</h4>
+              <p>Verify recursive queries, audit records (A, TXT, MX), and simulate cache poisoning inside isolated targets.</p>
+            </div>
+          </div>
+          <div class="topic-item">
+            <span class="topic-icon">🔑</span>
+            <div>
+              <h4>SSH & Cryptographic Access</h4>
+              <p>Configure Ed25519 secure key authentication, disable root console logins, and monitor SSH authorization logs.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Web App Pentesting Panel -->
+      <div class="module-panel" id="m-web">
+        <div class="topics-grid">
+          <div class="topic-item">
+            <span class="topic-icon">💉</span>
+            <div>
+              <h4>SQL Injection (SQLi) Audit</h4>
+              <p>Manipulate vulnerable queries, map databases using UNION vectors, and implement parameterized statements.</p>
+            </div>
+          </div>
+          <div class="topic-item">
+            <span class="topic-icon">🎛️</span>
+            <div>
+              <h4>Proxy Interception & Replay</h4>
+              <p>Audit request parameter boundaries, headers, and session tokens using Burp Suite Repeater and Intruder.</p>
+            </div>
+          </div>
+          <div class="topic-item">
+            <span class="topic-icon">🌀</span>
+            <div>
+              <h4>Server-Side Request Forgery (SSRF)</h4>
+              <p>Coerce web nodes to scan loopbacks or internal subnets, mapping vulnerable cloud metadata endpoints.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Offensive Operations Panel -->
+      <div class="module-panel" id="m-infra">
+        <div class="topics-grid">
+          <div class="topic-item">
+            <span class="topic-icon">🧭</span>
+            <div>
+              <h4>Active Port Scan Mechanics</h4>
+              <p>Run stealth scans using Nmap flags, detect firewall filtering, and map operational service banners.</p>
+            </div>
+          </div>
+          <div class="topic-item">
+            <span class="topic-icon">💥</span>
+            <div>
+              <h4>Metasploit Exploit Orchestration</h4>
+              <p>Search active auxiliary scans, deploy payloads, and maintain shell access on vulnerable target hosts.</p>
+            </div>
+          </div>
+          <div class="topic-item">
+            <span class="topic-icon">🐚</span>
+            <div>
+              <h4>Reverse and Bind Shell Vectors</h4>
+              <p>Configure netcat listeners, structure payload injections, and bypass egress rules using secure proxy streams.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Threat Incident Response Panel -->
+      <div class="module-panel" id="m-response">
+        <div class="topics-grid">
+          <div class="topic-item">
+            <span class="topic-icon">🕵️</span>
+            <div>
+              <h4>Wireshark Packet Analysis</h4>
+              <p>Filter large pcap captures, search HTTP streams for plain credentials, and identify abnormal connection volume.</p>
+            </div>
+          </div>
+          <div class="topic-item">
+            <span class="topic-icon">📜</span>
+            <div>
+              <h4>MITRE ATT&CK Mapping</h4>
+              <p>Deconstruct system breach behaviors, tag techniques, and map defenses directly onto firewalls.</p>
+            </div>
+          </div>
+          <div class="topic-item">
+            <span class="topic-icon">🚨</span>
+            <div>
+              <h4>Firewall & Access Control Configuration</h4>
+              <p>Construct host-only pfSense routing lists, isolate target segments, and implement rate-limiting rules.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- LOCAL LAB SETUP ENVIRONMENT -->
+  <section id="labs" class="reveal">
+    <div class="section-tag">Setup Lab</div>
+    <h2 class="section-title">Isolated <span>Target Sandbox Setup</span></h2>
+    <p class="section-sub">Construct your safe laboratory environment locally on VirtualBox or VMware. Do NOT test offensive tools outside these parameters.</p>
+
+    <div class="lab-tabs">
+      <button class="lab-tab active" data-target="lab-vbox">VirtualBox Subnet</button>
+      <button class="lab-tab" data-target="lab-kali">Kali Linux Integration</button>
+      <button class="lab-tab" data-target="lab-juice">OWASP Juice Shop Sandbox</button>
+    </div>
+
+    <!-- VirtualBox Setup Content -->
+    <div class="lab-content active" id="lab-vbox">
+      <div class="lab-steps">
+        <div class="lab-step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Configure Host-Only Network Adapter</h4>
+            <p>Open VirtualBox > Tools > Network Manager. Click Create. Ensure it is named <code>vboxnet0</code> and assign a static IPv4 address. Leave the DHCP server disabled to avoid random address assignment.</p>
+            <div class="code-block">
+              <span class="c-comment"># CLI Verification of active VirtualBox host-only interfaces</span><br/>
+              <span class="c-green">VBoxManage</span> <span class="c-cyan">hostonlyif</span> <span class="c-orange">ipconfig vboxnet0</span> <span class="c-red">--ip 192.168.56.1 --netmask 255.255.255.0</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+          </div>
+        </div>
+        <div class="lab-step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Set Dual-Network Adapters on Attack Node</h4>
+            <p>Ensure your Kali Virtual Machine has two network interfaces: Adapter 1 mapped to <strong>NAT</strong> (for package updates) and Adapter 2 mapped to <strong>Host-Only Adapter</strong> (for target scanning).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kali Linux Setup Content -->
+    <div class="lab-content" id="lab-kali">
+      <div class="lab-steps">
+        <div class="lab-step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Verify Interface Allocation</h4>
+            <p>Boot Kali Linux and query terminal adapters to verify that Adapter 2 has successfully bound to the host-only subnet.</p>
+            <div class="code-block">
+              <span class="c-comment"># Query networking devices and verify IP addressing</span><br/>
+              <span class="c-green">ip</span> <span class="c-cyan">addr show</span> eth1
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+          </div>
+        </div>
+        <div class="lab-step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Perform Stealth Scan Verification</h4>
+            <p>Check if you can ping or scan within the subnet using Nmap stealth flags.</p>
+            <div class="code-block">
+              <span class="c-comment"># Scan host-only segment to verify targets</span><br/>
+              <span class="c-green">nmap</span> <span class="c-cyan">-sP</span> <span class="c-red">192.168.56.0/24</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OWASP Juice Shop Setup Content -->
+    <div class="lab-content" id="lab-juice">
+      <div class="lab-steps">
+        <div class="lab-step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Run Target Container</h4>
+            <p>Pull and launch the OWASP Juice Shop vulnerable target inside your target VM (Ubuntu/Debian) bound strictly to the Host-Only interface on port 3000.</p>
+            <div class="code-block">
+              <span class="c-comment"># Pull and run Juice Shop container inside sandbox</span><br/>
+              <span class="c-green">docker</span> <span class="c-cyan">run</span> <span class="c-orange">-d -p 192.168.56.10:3000:3000</span> <span class="c-red">bkimminich/juice-shop</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+          </div>
+        </div>
+        <div class="lab-step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Decoupled Web proxy intercept configuration</h4>
+            <p>Launch Burp Suite on Kali, assign browser settings to proxy queries to port 8080, and verify traffic intercept flows when querying <code>http://192.168.56.10:3000</code>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Targets Deck -->
+    <div class="vm-grid">
+      <div class="vm-card">
+        <span class="vm-icon">💀</span>
+        <h3>Metasploitable 2 VM</h3>
+        <p>A Linux virtual target intentionally vulnerable to exploit mechanisms (vulnerable FTP, SSH, Tomcat).</p>
+        <a href="https://sourceforge.net/projects/metasploitable/files/Metasploitable2/" target="_blank" class="vm-link">Download VM</a>
+      </div>
+      <div class="vm-card">
+        <span class="vm-icon">🍷</span>
+        <h3>OWASP Juice Shop</h3>
+        <p>A modern web application containing standard OWASP Top 10 vulnerabilities (SQLi, XSS, broken access).</p>
+        <a href="https://owasp.org/www-project-juice-shop/" target="_blank" class="vm-link">Juice Shop Docs</a>
+      </div>
+      <div class="vm-card">
+        <span class="vm-icon">🐉</span>
+        <h3>Kali Linux</h3>
+        <p>Standard testing distribution containing advanced tools configured for security assessments.</p>
+        <a href="https://www.kali.org/downloads/" target="_blank" class="vm-link">Get Kali ISO</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI PIPELINE SYLLABUS GENERATOR (FORM & RAG OUTPUT) -->
+  <section id="practice" class="reveal">
+    <div class="scan-line"></div>
+    <div class="section-tag">AI Customization</div>
+    <h2 class="section-title">Adaptive <span>AI Syllabus Planner</span></h2>
+    <p class="section-sub">Configure your syllabus. Our RAG system parses the local knowledge base to inject network rules and commands before prompting the Gemini model.</p>
+
+    <div class="practice-wrapper">
+      <!-- Input Panel -->
+      <div class="form-card">
+        <div class="form-title">// INITIATE ADAPTIVE ROUTING PROTOCOL</div>
+        
+        <form id="syllabus-form" onsubmit="event.preventDefault(); generatePlan();">
+          <div class="form-group">
+            <label for="student-name">Student Identity</label>
+            <input type="text" id="student-name" placeholder="Enter name or codename" required />
+          </div>
+
+          <div class="form-group">
+            <label for="student-level">Operational Skill Tier</label>
+            <select id="student-level" required>
+              <option value="beginner">Beginner (Basic commands, no lab experience)</option>
+              <option value="intermediate">Intermediate (Comfortable with Linux & basic tools)</option>
+              <option value="advanced">Advanced (Understand routing & TCP handshakes)</option>
+              <option value="expert">Expert (Can build custom scanners/scripts)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Cybersecurity Objectives (Select focus areas)</label>
+            <div class="skill-selector">
+              <button type="button" class="skill-btn" data-value="Web Pentesting">Web Apps & Proxy</button>
+              <button type="button" class="skill-btn" data-value="Networking Baselines">Networking Specs</button>
+              <button type="button" class="skill-btn" data-value="SQL Injection">SQL Injection</button>
+              <button type="button" class="skill-btn" data-value="Metasploit exploit">Metasploit Exploit</button>
+              <button type="button" class="skill-btn" data-value="Nmap Scripting">Nmap NSE Scan</button>
+              <button type="button" class="skill-btn" data-value="Isolated Lab Topology">Isolated Lab topologies</button>
+            </div>
+            <!-- Hidden input to store objective selection -->
+            <input type="hidden" id="student-goal" required />
+          </div>
+
+          <div class="form-group">
+            <label for="student-hours">Weekly Time Commitment (Hours)</label>
+            <input type="number" id="student-hours" min="1" max="168" value="10" required />
+          </div>
+
+          <div class="form-group">
+            <label for="student-struggle">Core Learning Struggle</label>
+            <textarea id="student-struggle" rows="3" placeholder="What is blocking you? (e.g. subnet structures, command parameters, exploit scripts)" required></textarea>
+          </div>
+
+          <button type="submit" class="generate-btn" id="generate-submit-btn">Generate Curriculum</button>
+          
+          <div class="form-error" id="form-error-panel">
+            Error validating data payload. Ensure port allocation and API keys are configured.
+          </div>
+        </form>
+      </div>
+
+      <!-- Output Area -->
+      <div class="output-area">
+        <!-- Placeholder State -->
+        <div class="output-placeholder" id="placeholder-state">
+          <span class="placeholder-icon">🛡️</span>
+          <span class="placeholder-text">Enter parameters on the left and submit payload. Output matrix will stream here.</span>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-screen" id="loading-state">
+          <span class="loading-text">TRANSMITTING PAYLOAD... INJECTING CORPUS CONTEXT</span>
+          <div class="loader-bar">
+            <div class="loader-fill"></div>
+          </div>
+          <span class="placeholder-text" style="color:var(--text2)">Compiling isolated networks and command syntaxes into prompt buffer...</span>
+        </div>
+
+        <!-- Results Card -->
+        <div class="result-card" id="result-state">
+          <div class="result-header">
+            <span class="result-icon">🚀</span>
+            <h3>ADAPTIVE CURRICULUM OVERVIEW</h3>
+          </div>
+          <div class="result-body" id="result-body">
+            <!-- Dynamic Gemini HTML Content Injector -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTF / PRACTICE ATTACKS -->
+  <section id="ctf" class="reveal">
+    <div class="section-tag">CTF Sandbox</div>
+    <h2 class="section-title">Active <span>Breach Deployments</span></h2>
+    <p class="section-sub">Test your security configuration audits and capture the flag. Points are scaled according to network complexity.</p>
+
+    <div class="ctf-grid">
+      <div class="ctf-card beginner">
+        <span class="ctf-diff diff-easy">Easy // Recon</span>
+        <h3>Stealth Scanner Conquest</h3>
+        <p>Identify active vulnerable TCP ports on the network segment using stealth scanning flags without triggering security alarms.</p>
+        <div class="ctf-footer">
+          <span class="ctf-pts">100 PTS</span>
+          <button class="ctf-btn" onclick="startCTF('Stealth Scanner Conquest')">Start Mission</button>
+        </div>
+      </div>
+      <div class="ctf-card medium">
+        <span class="ctf-diff diff-medium">Medium // OWASP</span>
+        <h3>UNION SQL Injection Breach</h3>
+        <p>Extract administrative credentials from Juice Shop target by exploiting parameter queries and bypassing basic sanitization filters.</p>
+        <div class="ctf-footer">
+          <span class="ctf-pts">250 PTS</span>
+          <button class="ctf-btn" onclick="startCTF('UNION SQL Injection Breach')">Start Mission</button>
+        </div>
+      </div>
+      <div class="ctf-card hard">
+        <span class="ctf-diff diff-hard">Hard // Exploitation</span>
+        <h3>Metasploitable Auxiliary Control</h3>
+        <p>Scan for target services, configure custom post-exploitation modules, bypass OS firewalls, and launch a reverse TCP shell.</p>
+        <div class="ctf-footer">
+          <span class="ctf-pts">500 PTS</span>
+          <button class="ctf-btn" onclick="startCTF('Metasploitable Auxiliary Control')">Start Mission</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONVERSATIONAL AI CONSOLE (MENTOR TERMINAL) -->
+  <section id="chat" class="reveal">
+    <div class="section-tag">AI Assistant</div>
+    <h2 class="section-title">CyberShield <span>Mentor Terminal</span></h2>
+    <p class="section-sub">Consult the academy's Principal Security Mentor. The backend injects RAG context (protocols, command syntax, subnets) depending on your query.</p>
+
+    <div class="chat-wrapper">
+      <div class="chat-header">
+        <div class="chat-avatar">🛡️</div>
+        <div class="chat-info">
+          <h4>SHIELD MENTOR V1.5</h4>
+          <p>STATUS: ACTIVE // RAG_INJECTION_ON</p>
+        </div>
+        <div class="chat-status"></div>
+      </div>
+
+      <!-- Chat Message Stream -->
+      <div class="chat-messages" id="chat-messages-container">
+        <div class="msg ai">
+          <div class="msg-label">SHIELD_MENTOR_DAEMON</div>
+          Secure connection established. Welcome to the CyberShield Academy Terminal. Ask me about VirtualBox host-only setups, Nmap syntax, TCP handshakes, or OWASP Injection mitigations.
+        </div>
+      </div>
+
+      <!-- Chat Inputs -->
+      <div class="chat-input-area">
+        <input type="text" class="chat-input" id="chat-input-field" placeholder="Ask about lab networking, tools, commands..." onkeydown="if(event.key === 'Enter') sendChat();" />
+        <button class="chat-send" id="chat-send-btn" onclick="sendChat()">Transmit</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOOLS ARSENAL -->
+  <section id="tools" class="reveal">
+    <div class="section-tag">Tool Deck</div>
+    <h2 class="section-title">Academy <span>Tools Arsenal</span></h2>
+    <p class="section-sub">Standard utilities configured within the host-only targets environment.</p>
+
+    <div class="tools-grid">
+      <a href="https://nmap.org" target="_blank" class="tool-pill">
+        <span class="tool-name">Nmap</span>
+        <p class="tool-desc">Used for mapping active hosts, open ports, OS detection, and network service auditing.</p>
+        <span class="tool-cat">Reconnaissance</span>
+      </a>
+      <a href="https://portswigger.net/burp" target="_blank" class="tool-pill">
+        <span class="tool-name">Burp Suite Proxy</span>
+        <p class="tool-desc">Intercepts client HTTP traffic, facilitating header audits and injection checks.</p>
+        <span class="tool-cat">Web Auditing</span>
+      </a>
+      <a href="https://www.metasploit.com" target="_blank" class="tool-pill">
+        <span class="tool-name">Metasploit</span>
+        <p class="tool-desc">Orchestrates automated scanning, exploit delivery, and shell access setups.</p>
+        <span class="tool-cat">Exploitation</span>
+      </a>
+      <a href="https://www.wireshark.org" target="_blank" class="tool-pill">
+        <span class="tool-name">Wireshark</span>
+        <p class="tool-desc">Analyzes detailed packet streams to review plain-text leaks or handshake integrity.</p>
+        <span class="tool-cat">Packet Analysis</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- CERTIFICATIONS TIMELINE -->
+  <section id="certs" class="reveal">
+    <div class="section-tag">Milestones</div>
+    <h2 class="section-title">Academy <span>Certification Maps</span></h2>
+    <p class="section-sub">Align your roadmap results directly with established security benchmarks.</p>
+
+    <div class="certs-timeline">
+      
+      <!-- CEH -->
+      <div class="cert-item">
+        <div class="cert-content">
+          <span class="cert-badge badge-beginner">CompTIA Security+ / CEH</span>
+          <h3>Foundational Security & Auditing</h3>
+          <p>Gain comfort with operational standards, basic ports, CLI, networks, and general vulnerabilities mapping to standard compliance requirements.</p>
+          <div class="cert-duration">Estimated Prep: 4 - 8 Weeks</div>
+        </div>
+        <div class="cert-dot"></div>
+        <div class="cert-spacer"></div>
+      </div>
+
+      <!-- OSCP -->
+      <div class="cert-item">
+        <div class="cert-content">
+          <span class="cert-badge badge-advanced">OffSec OSCP</span>
+          <h3>Practical Penetration Testing</h3>
+          <p>Master manual scanning, script modifications, reverse shell executions, target pivot procedures, and writeups under strict session constraints.</p>
+          <div class="cert-duration">Estimated Prep: 12 - 24 Weeks</div>
+        </div>
+        <div class="cert-dot"></div>
+        <div class="cert-spacer"></div>
+      </div>
+
+      <!-- OSCE/CISSP -->
+      <div class="cert-item">
+        <div class="cert-content">
+          <span class="cert-badge badge-expert">CISSP / Exploit Architect</span>
+          <h3>Elite Architecture & Governance</h3>
+          <p>Audit enterprise structures, design isolated network topologies, review cryptographic handshakes, and oversee threat operations.</p>
+          <div class="cert-duration">Estimated Prep: 24+ Weeks</div>
+        </div>
+        <div class="cert-dot"></div>
+        <div class="cert-spacer"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ULTRA LUXURY CTA CLOSURE -->
+  <section id="cta">
+    <div class="cta-glow-box">
+      <h2 class="cta-title">Deploy Your Defense Career</h2>
+      <p class="cta-sub">Configure local host-only labs, initialize RAG context mapping protocols, and acquire elite technical insights directly from our cybersecurity AI matrix.</p>
+      <div class="cta-buttons">
+        <a href="#practice" class="btn-primary">Initialize AI Path</a>
+        <a href="#labs" class="btn-secondary">Configure Targets</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER BRANDING -->
+  <footer>
+    <div class="footer-brand">
+      // <span>CYBERSHIELD AI</span> — Platform Engineer: S.S.Hemanth Kumar. All Rights Secure.
+    </div>
+    <div class="footer-links">
+      <a href="#">Security Policy</a>
+      <a href="#">Terms of Engagement</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+{
+  "lab_topologies": [
+    {
+      "name": "isolated_subnet_lab",
+      "description": "VirtualBox Host-Only isolated subnet topology for safe malware analysis and pentesting.",
+      "virtualization": "VirtualBox / VMware",
+      "network_modes": {
+        "host_only": "Virtualbox Host-Only Ethernet Adapter (typically vboxnet0). No external internet routing. Static IP assignments.",
+        "nat_network": "Allows outbound internet connectivity for updates while keeping VMs on a private subnet. Port forwarding can be configured.",
+        "bridged": "Exposes virtual machine directly to the physical host network (Warning: NOT recommended for vulnerable machines due to exposure)."
+      },
+      "subnets": [
+        {
+          "cidr": "10.0.2.0/24",
+          "gateway": "10.0.2.1",
+          "dhcp_range": "10.0.2.100 - 10.0.2.200",
+          "purpose": "Target machines subnet (DVWA, Metasploitable, Juice Shop)",
+          "dns": "8.8.8.8, 1.1.1.1"
+        },
+        {
+          "cidr": "192.168.56.0/24",
+          "gateway": "192.168.56.1",
+          "purpose": "Host-Only interface for local host browser interaction with target nodes",
+          "dhcp": "Disabled (Static allocation highly recommended)"
+        }
+      ],
+      "firewall_rules": [
+        "Block all outbound traffic from 10.0.2.0/24 to the WAN interface except port 53 (DNS) and 123 (NTP).",
+        "Allow incoming SSH (port 22) and HTTPS (port 443) only from administrative host range (192.168.56.1/32).",
+        "Enable logging on all dropped packages to identify unauthorized traversal attempts."
+      ]
+    },
+    {
+      "name": "pfsense_dual_homed_routing",
+      "description": "Double-NIC firewall routing topology utilizing pfSense to segment administrative consoles from vulnerable target zones.",
+      "interfaces": {
+        "wan": "Configured on NAT Mode for outbound updates (static/dhcp)",
+        "lan": "Configured on Internal Network (e.g. 'SecurityLab') serving IP ranges in 10.10.10.0/24"
+      },
+      "routing_protocol": "Static routing configured. LAN interface acts as default gateway for target OS instances.",
+      "security_posture": "Strict NAT rule definitions. Only administrative subnets can browse PfSense WebGUI on port 443."
+    }
+  ],
+  "networking_baselines": [
+    {
+      "protocol": "TCP/IP",
+      "description": "Transmission Control Protocol / Internet Protocol suite. Connection-oriented transmission with 3-way handshake mechanics.",
+      "handshake": {
+        "step_1": "Client sends SYN packet (Synchronize) containing Initial Sequence Number (ISN).",
+        "step_2": "Server responds with SYN-ACK packet (Synchronize-Acknowledge) confirming receipt.",
+        "step_3": "Client sends ACK packet (Acknowledge) finalizing connection state."
+      },
+      "security_concerns": [
+        "SYN Flood Attacks: Flooding the server with half-open connections by never sending the final ACK, consuming backlogged queues.",
+        "TCP Session Hijacking: Sniffing sequence numbers to spoof packet injections.",
+        "TCP Reset Attacks: Forging RST packets to prematurely tear down connections."
+      ],
+      "mitigations": [
+        "SYN Cookies: Generate sequence numbers cryptographically to avoid allocating state until the 3-way handshake completes.",
+        "TCP Keepalive: Regularly verify state on idle sockets.",
+        "Encrypted Transport: Encapsulating TCP payloads in IPsec or TLS."
+      ]
+    },
+    {
+      "protocol": "DNS",
+      "description": "Domain Name System. Translates human-readable hostnames to IP addresses using UDP port 53.",
+      "records": [
+        {"type": "A", "purpose": "Maps IPv4 address"},
+        {"type": "AAAA", "purpose": "Maps IPv6 address"},
+        {"type": "CNAME", "purpose": "Alias mapping to another domain name"},
+        {"type": "MX", "purpose": "Mail Exchanger records"},
+        {"type": "TXT", "purpose": "Text records, commonly used for SPF, DKIM, and DMARC validations"}
+      ],
+      "vulnerabilities": [
+        "DNS Cache Poisoning / Spoofing: Injecting forged IP translations into resolver caches.",
+        "DNS Amplification DDoS: Querying open resolvers with spoofed source IPs requesting heavy records (TXT/ANY).",
+        "DNS Exfiltration: Tunneling sensitive data outbound using DNS query parameters."
+      ],
+      "mitigations": [
+        "Implement DNSSEC: Cryptographically sign records to verify authenticity.",
+        "Disable Open Recursion on internal DNS servers.",
+        "Configure Query Rate-Limiting and traffic analysis of DNS TXT records."
+      ]
+    },
+    {
+      "protocol": "SSH",
+      "description": "Secure Shell. Encrypted remote administration protocol operating over TCP port 22.",
+      "authentication": "Passwords or Cryptographic Keypairs (RSA, Ed25519).",
+      "best_practices": [
+        "Disable password authentication (`PasswordAuthentication no` in sshd_config).",
+        "Change default listening port from 22 to a non-standard high port (e.g. 2222).",
+        "Disable root access (`PermitRootLogin no`).",
+        "Use key encryption with strong algorithms (Ed25519 over RSA 2048)."
+      ]
+    }
+  ],
+  "security_tools": [
+    {
+      "name": "Nmap",
+      "category": "Network Reconnaissance",
+      "description": "Network Mapper utility for discovery and vulnerability scanning.",
+      "commands": [
+        {
+          "syntax": "nmap -sS -sV -p- -T4 <target>",
+          "explanation": "Executes a stealthy SYN scan (-sS), probes ports for service version (-sV), tests all 65,535 ports (-p-), with aggressive timing (-T4)."
+        },
+        {
+          "syntax": "nmap --script vuln <target>",
+          "explanation": "Runs the Nmap Scripting Engine (NSE) vulnerability scanning suite against active services."
+        },
+        {
+          "syntax": "nmap -sU <target>",
+          "explanation": "Performs UDP port scan (slow, sends ICMP port unreachable queries to gauge open state)."
+        }
+      ],
+      "output_modes": {
+        "-oN": "Normal human-readable log file",
+        "-oX": "XML file format suitable for parsing and ingestion",
+        "-oG": "Grepable flat file structure"
+      }
+    },
+    {
+      "name": "Burp Suite",
+      "category": "Web Application Pentesting",
+      "description": "Intercepting HTTP proxy and web application security auditing framework.",
+      "modules": {
+        "proxy": "Intercepts client-server HTTP request/response payloads in transit.",
+        "repeater": "Allows manual manipulation and re-sending of isolated HTTP requests.",
+        "intruder": "Performs automated dictionary attacks, fuzzing, and credential stuffing.",
+        "decoder": "Encodes or decodes text vectors (Base64, Hex, URL, HTML encoding)."
+      },
+      "target_configurations": [
+        "Configure local browser proxy to loopback address (127.0.0.1:8080).",
+        "Import Burp CA Certificate into target browser's Trusted Root Certificates store to decrypt TLS streams."
+      ]
+    },
+    {
+      "name": "Metasploit",
+      "category": "Exploitation Framework",
+      "description": "Modular database and framework containing exploit payloads, encoders, and scanners.",
+      "core_concepts": {
+        "msfconsole": "Interactive command-line control panel for framework execution.",
+        "payloads": "Code executed on target system after successful exploitation (e.g. meterpreter reverse TCP shell).",
+        "modules": "Exploits, Auxiliary (scanners/fuzzers), Post-Exploitation, Nops, Encoders."
+      },
+      "standard_workflow": [
+        "search <vulnerability_name>",
+        "use <module_path>",
+        "set RHOSTS <target_ip>",
+        "set LHOST <attacker_ip>",
+        "set LPORT <listener_port>",
+        "set PAYLOAD generic/shell_reverse_tcp",
+        "exploit"
+      ]
+    },
+    {
+      "name": "Wireshark",
+      "category": "Packet Analysis",
+      "description": "Graphical packet analyzer mapping network protocol details.",
+      "display_filters": [
+        {
+          "syntax": "ip.addr == 10.0.2.15",
+          "explanation": "Filters captures to packets involving only the specified IP address."
+        },
+        {
+          "syntax": "http.request.method == \"POST\"",
+          "explanation": "Isolates web POST requests (commonly used to inspect credential leakage)."
+        },
+        {
+          "syntax": "tcp.flags.syn == 1 && tcp.flags.ack == 0",
+          "explanation": "Filters for raw connection initiation requests (SYN packets)."
+        }
+      ]
+    }
+  ],
+  "owasp_top_10": [
+    {
+      "id": "A03:2021",
+      "name": "Injection",
+      "description": "User supplied input is executed as commands or queries by an interpreter (SQL, OS Command, LDAP).",
+      "common_vectors": {
+        "sql_injection": "Manipulating database query strings (e.g. `' OR '1'='1`).",
+        "command_injection": "Appending system commands to parameters (e.g. `; rm -rf /`)."
+      },
+      "mitre_attack_mappings": [
+        {
+          "id": "T1190",
+          "tactic": "Initial Access",
+          "technique": "Exploit Public-Facing Application"
+        },
+        {
+          "id": "T1059",
+          "tactic": "Execution",
+          "technique": "Command and Scripting Interpreter"
+        }
+      ],
+      "mitigations": [
+        "Parameterized Queries: Implement Prepared Statements in SQL queries.",
+        "Input Sanitization and Validation: Strictly filter input against a whitelist regex schema.",
+        "Principle of Least Privilege: Configure database process accounts with minimal permissions."
+      ]
+    },
+    {
+      "id": "A01:2021",
+      "name": "Broken Access Control",
+      "description": "Failure to enforce user action privileges, allowing unauthorized data access or modifications.",
+      "mitre_attack_mappings": [
+        {
+          "id": "T1078",
+          "tactic": "Defense Evasion",
+          "technique": "Valid Accounts"
+        }
+      ],
+      "mitigations": [
+        "Deny by Default configuration for all API endpoints.",
+        "Validate JWT or Session tokens strictly on the server-side for every single request.",
+        "Use UUIDs instead of auto-incrementing integer IDs to block Direct Object References (IDOR)."
+      ]
+    },
+    {
+      "id": "A10:2021",
+      "name": "Server-Side Request Forgery (SSRF)",
+      "description": "Vulnerability allowing an attacker to coerce a server-side application into sending crafted HTTP queries to arbitrary internal domains.",
+      "mitre_attack_mappings": [
+        {
+          "id": "T1565",
+          "tactic": "Impact",
+          "technique": "Data Manipulation"
+        }
+      ],
+      "mitigations": [
+        "Network-layer access control: Disable local loopback access (127.0.0.1) and internal IP ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).",
+        "Input validation: Enforce schema whitelists (only allow http/https protocols).",
+        "Disable HTTP redirects to prevent bypass strategies."
+      ]
+    }
+  ]
+}
