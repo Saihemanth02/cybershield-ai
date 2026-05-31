@@ -1,4 +1,11 @@
 /* ============================================================
+   API GATEWAY & CORS CONFIGURATION
+   ============================================================ */
+const API_BASE = (window.location.origin.includes('localhost:3000') || window.location.origin.includes('vercel.app'))
+  ? ''
+  : 'http://localhost:3000';
+
+/* ============================================================
    MATRIX RAIN CANVAS ENGINE
 ============================================================ */
 const matrixCanvas = document.getElementById('matrix-canvas');
@@ -302,7 +309,7 @@ async function generatePlan() {
   }
 
   try {
-    const response = await fetch('/api/generate-plan', {
+    const response = await fetch(`${API_BASE}/api/generate-plan`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -373,7 +380,7 @@ async function sendChat() {
 
   try {
     // Send request including memory history buffer
-    const response = await fetch('/api/chat', {
+    const response = await fetch(`${API_BASE}/api/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
