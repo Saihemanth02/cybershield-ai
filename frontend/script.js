@@ -1,3 +1,4 @@
+
 /* ============================================================
    API GATEWAY & CORS CONFIGURATION
    ============================================================ */
@@ -57,7 +58,7 @@ if (particlesContainer) {
   for (let i = 0; i < maxParticles; i++) {
     const particle = document.createElement('div');
     particle.className = 'particle';
-    
+
     // Random sizes, coordinates, and floats
     const size = Math.random() * 3 + 1;
     const startX = Math.random() * 100;
@@ -88,9 +89,9 @@ function showToast(message, icon = '🛡️') {
   if (!toast) return;
   toastIcon.textContent = icon;
   toastMsg.textContent = message;
-  
+
   toast.classList.add('show');
-  
+
   if (toastTimeout) clearTimeout(toastTimeout);
   toastTimeout = setTimeout(() => {
     toast.classList.remove('show');
@@ -101,8 +102,27 @@ function showToast(message, icon = '🛡️') {
 window.addEventListener('load', () => {
   setTimeout(() => {
     showToast("CyberShield AI Sandbox Console Online", "🛡️");
-    
+
     if (window.location.protocol === 'file:') {
+      const banner = document.createElement('div');
+      banner.style.position = 'fixed';
+      banner.style.top = '0';
+      banner.style.left = '0';
+      banner.style.width = '100%';
+      banner.style.background = 'rgba(235, 87, 87, 0.95)';
+      banner.style.color = '#ffffff';
+      banner.style.padding = '12px 24px';
+      banner.style.textAlign = 'center';
+      banner.style.zIndex = '99999';
+      banner.style.fontSize = '14px';
+      banner.style.fontWeight = 'bold';
+      banner.style.fontFamily = 'sans-serif';
+      banner.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+      banner.innerHTML = '⚠️ CORS SECURITY BLOCK: Browser security blocks local files from sending messages. Please open <a href="http://localhost:3000" style="color: #00ffff; text-decoration: underline; font-weight: bold;">http://localhost:3000</a> in your browser to run the app.';
+      
+      document.body.appendChild(banner);
+      document.body.style.paddingTop = '45px';
+
       setTimeout(() => {
         showToast("Warning: Local file protocol detected. Please open http://localhost:3000 to avoid API blocks.", "⚠️");
       }, 1500);
@@ -113,12 +133,14 @@ window.addEventListener('load', () => {
 /* ============================================================
    MOBILE INTERACTION NAVIGATION & SCROLL HANDLERS
 ============================================================ */
-const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
-  if (window.scrollY > 50) {
-    navbar.classList.add('scrolled');
-  } else {
-    navbar.classList.remove('scrolled');
+  const navbar = document.getElementById('navbar');
+  if (navbar) {
+    if (window.scrollY > 50) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
   }
 });
 
@@ -180,7 +202,7 @@ window.addEventListener('load', revealScroll);
 const terminalLines = document.querySelectorAll('#hero-terminal-body .t-line');
 if (terminalLines.length > 0) {
   let lineIndex = 0;
-  
+
   function typeTerminalLines() {
     if (lineIndex < terminalLines.length) {
       const line = terminalLines[lineIndex];
@@ -190,7 +212,7 @@ if (terminalLines.length > 0) {
       setTimeout(typeTerminalLines, 800);
     }
   }
-  
+
   // Trigger sequence delay after loading screen finishes
   setTimeout(typeTerminalLines, 1500);
 }
@@ -205,7 +227,7 @@ tabButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     tabButtons.forEach(b => b.classList.remove('active'));
     modulePanels.forEach(p => p.classList.remove('active'));
-    
+
     btn.classList.add('active');
     const targetId = btn.getAttribute('data-target');
     const targetPanel = document.getElementById(targetId);
@@ -220,7 +242,7 @@ labTabs.forEach(tab => {
   tab.addEventListener('click', () => {
     labTabs.forEach(t => t.classList.remove('active'));
     labContents.forEach(c => c.classList.remove('active'));
-    
+
     tab.classList.add('active');
     const targetId = tab.getAttribute('data-target');
     const targetContent = document.getElementById(targetId);
@@ -269,7 +291,7 @@ hourBtns.forEach(btn => {
     // Single-select behavior: deactivate all other buttons
     hourBtns.forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
-    
+
     if (hoursInput) {
       hoursInput.value = btn.getAttribute('data-value');
     }
@@ -280,11 +302,11 @@ hourBtns.forEach(btn => {
    RAG SYLLABUS GENERATOR PIPELINE (POST /api/generate-plan)
 ============================================================ */
 async function generatePlan() {
-  const name = document.getElementById('student-name').value;
-  const level = document.getElementById('student-level').value;
-  const goal = document.getElementById('student-goal').value;
-  const hours = document.getElementById('student-hours').value;
-  const struggle = document.getElementById('student-struggle').value;
+  const nameEl = document.getElementById('student-name');
+  const levelEl = document.getElementById('student-level');
+  const goalEl = document.getElementById('student-goal');
+  const hoursEl = document.getElementById('student-hours');
+  const struggleEl = document.getElementById('student-struggle');
 
   const errorPanel = document.getElementById('form-error-panel');
   const placeholderState = document.getElementById('placeholder-state');
@@ -294,6 +316,22 @@ async function generatePlan() {
   const generateSubmitBtn = document.getElementById('generate-submit-btn');
 
   if (errorPanel) errorPanel.classList.remove('show');
+
+  if (!nameEl || !levelEl || !goalEl || !hoursEl) {
+    console.error("Required plan inputs are missing from DOM!");
+    if (errorPanel) {
+      errorPanel.textContent = "Configuration Error: Required form fields are missing from the document.";
+      errorPanel.classList.add('show');
+    }
+    showToast("Form configuration error.", "❌");
+    return;
+  }
+
+  const name = nameEl.value.trim();
+  const level = levelEl.value.trim();
+  const goal = goalEl.value.trim();
+  const hours = hoursEl.value.trim();
+  const struggle = struggleEl ? struggleEl.value.trim() : '';
 
   // Client side validation check (struggle is optional)
   if (!name || !level || !goal || !hours) {
@@ -342,7 +380,7 @@ async function generatePlan() {
     console.error("AI Syllabus generation error:", error);
     if (loadingState) loadingState.classList.remove('show');
     if (placeholderState) placeholderState.style.display = 'flex';
-    
+
     if (errorPanel) {
       errorPanel.textContent = `Transmission Error: ${error.message}`;
       errorPanel.classList.add('show');
@@ -365,94 +403,135 @@ if (syllabusForm) {
   });
 }
 
+// Bind chat event listeners
+const chatSendBtn = document.getElementById('chat-send-btn');
+if (chatSendBtn) {
+  chatSendBtn.addEventListener('click', (event) => {
+    event.preventDefault();
+    sendChat();
+  });
+}
+
+const chatInputField = document.getElementById('chat-input-field');
+if (chatInputField) {
+  chatInputField.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      sendChat();
+    }
+  });
+}
+
+
 /* ============================================================
    CONVERSATIONAL AI CONSOLE (POST /api/chat)
 ============================================================ */
-const chatMessagesContainer = document.getElementById('chat-messages-container');
-const chatInputField = document.getElementById('chat-input-field');
-const chatSendBtn = document.getElementById('chat-send-btn');
 const activeHistory = []; // Local queue structure for memory buffers
 
 async function sendChat() {
-  if (!chatInputField || !chatMessagesContainer) return;
-  const userMessage = chatInputField.value.trim();
-
-  if (userMessage.length === 0) return;
-
-  // Render User Message bubble
-  appendChatBubble('user', userMessage);
-  chatInputField.value = '';
-
-  // Append Typing Indicator node
-  const typingIndicator = appendTypingIndicator();
-  chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
-
-  // Toggle button state
-  if (chatSendBtn) {
-    chatSendBtn.disabled = true;
-    chatSendBtn.textContent = "...";
-  }
-
   try {
-    // Send request including memory history buffer
-    const response = await fetch(`${API_BASE}/api/chat`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: userMessage,
-        history: activeHistory
-      })
-    });
+    const inputEl = document.getElementById('chat-input-field');
+    const containerEl = document.getElementById('chat-messages-container');
+    const btnEl = document.getElementById('chat-send-btn');
 
-    const data = await response.json();
-
-    // Remove typing indicator before appending response
-    removeTypingIndicator(typingIndicator);
-
-    if (!response.ok) {
-      throw new Error(data.message || `Server returned status HTTP ${response.status}`);
+    if (!inputEl || !containerEl) {
+      alert("CyberShield Error: Missing DOM elements. inputEl=" + !!inputEl + ", containerEl=" + !!containerEl);
+      return;
     }
 
-    // Render AI Response bubble
-    appendChatBubble('ai', data.reply);
-    
-    // Save state transaction inside memory buffers
-    activeHistory.push({ role: 'user', message: userMessage });
-    activeHistory.push({ role: 'ai', message: data.reply });
+    const userMessage = inputEl.value.trim();
+    if (userMessage.length === 0) return;
 
-    // Limit memory size in client context (keep last 10 messages)
-    if (activeHistory.length > 20) {
-      activeHistory.splice(0, 2);
+    // Render User Message bubble
+    appendChatBubble('user', userMessage);
+    inputEl.value = '';
+
+    // Append Typing Indicator node
+    const typingIndicator = appendTypingIndicator();
+    if (typingIndicator) {
+      containerEl.scrollTop = containerEl.scrollHeight;
     }
 
-  } catch (error) {
-    console.error("Mentor Terminal Chat session failed:", error);
-    removeTypingIndicator(typingIndicator);
-    
-    appendChatBubble('ai', `CONNECTION TERMINATED: ${error.message}. Verify network adapter statuses or configure server local API keys.`);
-    showToast("Terminal message transmission failed.", "❌");
-  } finally {
-    if (chatSendBtn) {
-      chatSendBtn.disabled = false;
-      chatSendBtn.textContent = "Transmit";
+    // Toggle button state
+    if (btnEl) {
+      btnEl.disabled = true;
+      btnEl.textContent = "...";
     }
-    chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+
+    try {
+      // Send request including memory history buffer
+      const response = await fetch(`${API_BASE}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          history: activeHistory
+        })
+      });
+
+      const data = await response.json();
+
+      // Remove typing indicator before appending response
+      if (typingIndicator) {
+        removeTypingIndicator(typingIndicator);
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || `Server returned status HTTP ${response.status}`);
+      }
+
+      // Render AI Response bubble
+      appendChatBubble('ai', data.reply);
+
+      // Save state transaction inside memory buffers
+      activeHistory.push({ role: 'user', message: userMessage });
+      activeHistory.push({ role: 'ai', message: data.reply });
+
+      // Limit memory size in client context (keep last 10 messages)
+      if (activeHistory.length > 20) {
+        activeHistory.splice(0, 2);
+      }
+
+    } catch (error) {
+      console.error("Mentor Terminal Chat session failed:", error);
+      if (typingIndicator) {
+        removeTypingIndicator(typingIndicator);
+      }
+
+      appendChatBubble('ai', `CONNECTION TERMINATED: ${error.message}. Verify network adapter statuses or configure server local API keys.`);
+      showToast("Terminal message transmission failed.", "❌");
+    } finally {
+      if (btnEl) {
+        btnEl.disabled = false;
+        btnEl.textContent = "Transmit";
+      }
+      containerEl.scrollTop = containerEl.scrollHeight;
+    }
+  } catch (err) {
+    alert("sendChat runtime exception: " + err.message + "\nStack: " + err.stack);
+    console.error("sendChat crashed:", err);
   }
 }
 
 // Chat Helper: Append standard bubbles
 function appendChatBubble(role, text) {
+  const containerEl = document.getElementById('chat-messages-container');
+  if (!containerEl) {
+    console.error("Mentor Terminal Error: 'chat-messages-container' not found.");
+    return;
+  }
+
   const bubble = document.createElement('div');
   bubble.className = `msg ${role}`;
-  
+
   const label = document.createElement('div');
   label.className = 'msg-label';
   label.textContent = role === 'user' ? 'STUDENT_ADMIN_CONSOLE' : 'SHIELD_MENTOR_DAEMON';
-  
+
   const bodyText = document.createElement('span');
-  
+
   // Format basic paragraphs and code markers safely in conversational messages
   if (role === 'ai') {
     // Basic regex conversion for code tags and spacing
@@ -469,18 +548,24 @@ function appendChatBubble(role, text) {
 
   bubble.appendChild(label);
   bubble.appendChild(bodyText);
-  chatMessagesContainer.appendChild(bubble);
+  containerEl.appendChild(bubble);
 }
 
 // Chat Helper: Append typing animation
 function appendTypingIndicator() {
+  const containerEl = document.getElementById('chat-messages-container');
+  if (!containerEl) {
+    console.error("Mentor Terminal Error: 'chat-messages-container' not found.");
+    return null;
+  }
+
   const indicator = document.createElement('div');
   indicator.className = 'msg ai typing-wrapper-element';
-  
+
   const label = document.createElement('div');
   label.className = 'msg-label';
   label.textContent = 'SHIELD_MENTOR_DAEMON';
-  
+
   const flow = document.createElement('div');
   flow.className = 'typing-indicator';
   flow.innerHTML = `
@@ -491,7 +576,7 @@ function appendTypingIndicator() {
 
   indicator.appendChild(label);
   indicator.appendChild(flow);
-  chatMessagesContainer.appendChild(indicator);
+  containerEl.appendChild(indicator);
   return indicator;
 }
 
@@ -501,3 +586,9 @@ function removeTypingIndicator(element) {
     element.parentNode.removeChild(element);
   }
 }
+
+// Expose functions globally to ensure inline HTML event handlers resolve correctly under all execution scopes
+window.sendChat = sendChat;
+window.generatePlan = generatePlan;
+window.copyCode = copyCode;
+window.startCTF = startCTF;

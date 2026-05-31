@@ -380,15 +380,15 @@
       <div class="form-card">
         <div class="form-title">// CONFIGURE YOUR LEARNING PATH</div>
         
-        <form id="syllabus-form">
+        <form id="syllabus-form" onsubmit="event.preventDefault(); generatePlan(); return false;">
           <div class="form-group">
             <label for="student-name">Your Name</label>
-            <input type="text" id="student-name" placeholder="e.g. Hemanth Kumar" required />
+            <input type="text" id="student-name" placeholder="e.g. Hemanth Kumar" />
           </div>
 
           <div class="form-group">
             <label for="student-level">Your Current Level</label>
-            <select id="student-level" required>
+            <select id="student-level">
               <option value="" disabled selected>-- Select Level --</option>
               <option value="Absolute Beginner (no IT background)">Absolute Beginner (no IT background)</option>
               <option value="IT Basics (know computers & networking)">IT Basics (know computers & networking)</option>
@@ -400,7 +400,7 @@
 
           <div class="form-group">
             <label for="student-goal">Your Goal</label>
-            <select id="student-goal" required>
+            <select id="student-goal">
               <option value="" disabled selected>-- Select Goal --</option>
               <option value="Become a Penetration Tester">Become a Penetration Tester</option>
               <option value="Work in SOC / Blue Team">Work in SOC / Blue Team</option>
@@ -530,8 +530,8 @@
 
       <!-- Chat Inputs -->
       <div class="chat-input-area">
-        <input type="text" class="chat-input" id="chat-input-field" placeholder="Ask about lab networking, tools, commands..." onkeydown="if(event.key === 'Enter') sendChat();" />
-        <button class="chat-send" id="chat-send-btn" onclick="sendChat()">Transmit</button>
+        <input type="text" class="chat-input" id="chat-input-field" placeholder="Ask about lab networking, tools, commands..." />
+        <button type="button" class="chat-send" id="chat-send-btn">Transmit</button>
       </div>
     </div>
   </section>

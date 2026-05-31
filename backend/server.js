@@ -34,9 +34,17 @@ app.use(helmet({
 app.use(cors());
 app.use(express.json());
 
-// Serve static frontend assets
-app.use(express.static(path.join(__dirname, '../frontend')));
-app.use('/frontend', express.static(path.join(__dirname, '../frontend')));
+// Serve static frontend assets with cache disabled headers
+const staticOptions = {
+  setHeaders: (res, filepath) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
+};
+app.use(express.static(path.join(__dirname, '../frontend'), staticOptions));
+app.use('/frontend', express.static(path.join(__dirname, '../frontend'), staticOptions));
+
 
 // Load RAG Knowledge Base
 const kbPath = path.join(__dirname, 'data', 'knowledge_base.json');
@@ -185,12 +193,10 @@ function retrieveContext(queryText) {
 
 // ROUTE 1: Dynamic Syllabus Generator (RAG-Driven)
 app.post('/api/generate-plan', academyLimiter, validatePlanInput, async (req, res) => {
+  const { name, level, goal, hours, struggle } = req.sanitizedBody;
+  const ragContext = retrieveContext(`${goal} ${struggle}`);
+
   try {
-    const { name, level, goal, hours, struggle } = req.sanitizedBody;
-
-    // Execute semantic retrieval mapping against knowledge base
-    const ragContext = retrieveContext(`${goal} ${struggle}`);
-
     const systemPrompt = `You are a Principal AI Systems Architect and Elite Cybersecurity Syllabus Planner at CyberShield AI (Brand: S.S.Hemanth Kumar).
 Your job is to generate a highly detailed, professional study roadmap for:
 - Student Name: ${name}
@@ -240,26 +246,66 @@ System Instructions & Output Requirements:
     });
 
   } catch (error) {
-    console.error("Failed to generate cybersecurity plan:", error);
-    res.status(500).json({
-      error: "Syllabus Generation Failed",
-      message: error.message || "An internal database or API issue occurred. Please check system configurations."
+    console.warn("Failing over to dynamic RAG mock generation due to Gemini API issue:", error.message);
+    
+    // Generate beautiful mock plan locally based on the actual inputs and RAG context
+    const cleanRagContext = ragContext
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+    const fallbackHtml = `
+      <div style="background: rgba(240, 180, 0, 0.1); border: 1px solid #f0b400; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9em; color: #f0b400; font-family: sans-serif;">
+        <strong>⚠️ DEMO FALLBACK MODE ACTIVE:</strong> Your Google Gemini API Key is missing, incorrect, or has exceeded its rate limit quota. We have compiled your curriculum locally using the Academy RAG Database context instead.
+      </div>
+      <h3>Overview of Custom Roadmap</h3>
+      <p>Welcome, <strong>${name}</strong>. Here is your customized study matrix to achieve your objective of becoming a <strong>${goal}</strong> starting from your current level (<em>${level}</em>). Study commitment: <strong>${hours}</strong> per week.</p>
+      
+      <h3>Target Isolated Lab Design</h3>
+      <p>Configure a dual-NIC network topology in VirtualBox to practice safety audits locally:</p>
+      <ul>
+        <li>Host-Only Interface: Name it <code>vboxnet0</code>, static IPv4 <code>192.168.56.1</code>, subnet mask <code>255.255.255.0</code>. Ensure DHCP server is disabled.</li>
+        <li>Kali Linux VM: Configure Adapter 1 as NAT, and Adapter 2 as Host-Only.</li>
+        <li>Metasploitable/Juice Shop VM: Bind interface strictly to Host-Only adapter at <code>192.168.56.10</code>.</li>
+      </ul>
+
+      <h3>Weekly Structured Milestones</h3>
+      <p>Following your <strong>${hours}</strong> weekly plan, divide your sessions:</p>
+      <ul>
+        <li><strong>Milestone 1 (40% time):</strong> Rehearse passive and active scanning with <code>nmap</code>, filtering live host-only assets.</li>
+        <li><strong>Milestone 2 (30% time):</strong> Configure local intercept rules via Burp Suite and capture parameter requests.</li>
+        <li><strong>Milestone 3 (30% time):</strong> Secure ssh key exchange mechanics and deploy host firewalls.</li>
+      </ul>
+
+      <h3>Tool Practice Exercises</h3>
+      <p>Audit and execute these commands inside your isolated lab vector:</p>
+      <ul>
+        <li>Stealth Recon: <code>nmap -sS -sV -p 21,22,80,3000 192.168.56.0/24</code></li>
+        <li>Juice Shop Target URL: <code>http://192.168.56.10:3000</code></li>
+        <li>Verify Kali Interfaces: <code>ip addr show eth1</code></li>
+      </ul>
+
+      <h3>RAG Database Details Injected</h3>
+      <p>The local knowledge base returned these details for your objective:</p>
+      <pre style="background: rgba(2, 4, 8, 0.5); border: 1px solid var(--border); padding: 12px; border-radius: 6px; font-family: monospace; font-size: 0.85em; overflow-x: auto; white-space: pre-wrap; margin-top: 10px; color: var(--text);">${cleanRagContext}</pre>
+    `;
+
+    res.json({
+      success: true,
+      name,
+      level,
+      goal,
+      html: fallbackHtml
     });
   }
 });
 
 // ROUTE 2: Stateless Conversational Assistant (RAG-Driven Chat)
 app.post('/api/chat', academyLimiter, validateChatInput, async (req, res) => {
+  const { message, history } = req.sanitizedBody;
+  const ragContext = retrieveContext(message);
+
   try {
-    const { message, history } = req.sanitizedBody;
-
-    // Extract RAG snippets matching the incoming message context
-    const ragContext = retrieveContext(message);
-
-    // Format historical messages for Gemini context
-    // The history parameter is an array of { role, message }
-    // We map them to the format Gemini expects: { role, parts: [{ text }] }
-    // Note: Gemini roles are 'user' and 'model'
     const geminiHistory = history.map(h => ({
       role: h.role === 'ai' ? 'model' : h.role, // normalize AI role names if any
       parts: [{ text: h.message }]
@@ -279,10 +325,8 @@ Instructions:
 5. Always wrap commands, paths, and config directives in HTML <code> tags.`;
 
     const ai = getGenAI();
-    // Start a chat session using the history
     const chatModel = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
     
-    // We prepend the system instructions as a system prompt. In the Gemini SDK, we can pass systemInstruction in configuration
     const chat = chatModel.startChat({
       history: geminiHistory,
       generationConfig: {
@@ -302,10 +346,29 @@ Instructions:
     });
 
   } catch (error) {
-    console.error("Security chatbot session error:", error);
-    res.status(500).json({
-      error: "Mentor Terminal Failed",
-      message: error.message || "An internal routing error disrupted the secure link to the Gemini API."
+    console.warn("Failing over to local RAG mock chatbot response due to Gemini API issue:", error.message);
+
+    let reply = `⚠️ [DEMO FALLBACK ACTIVE - GEMINI API RATE-LIMITED]\n\nMy secure connection to the live Gemini AI engine is currently unavailable or has exceeded its daily free quota.\n\nHere is information retrieved from the local Academy database matching your request:\n\n`;
+    
+    if (ragContext && !ragContext.includes("CyberShield Academy Standard Guidelines")) {
+      // Clean and format RAG context
+      const formattedRag = ragContext
+        .replace(/\[/g, '`[')
+        .replace(/\]/g, ']`')
+        .replace(/Syntax: /g, 'Syntax: `')
+        .replace(/\n  Explanations:/g, '`\n  Explanation:')
+        .replace(/Protocol Baseline:/g, '\nProtocol Baseline:')
+        .replace(/Security Utility:/g, '\nSecurity Utility:')
+        .replace(/Vulnerability Segment:/g, '\nVulnerability Segment:');
+      
+      reply += formattedRag;
+    } else {
+      reply += `Please configure a valid <code>GEMINI_API_KEY</code> in the backend <code>.env</code> file or wait for the quota window to reset.\n\nIn the meantime, feel free to ask about standard VirtualBox host-only setups, Kali Linux integrations, or Nmap syntax.`;
+    }
+
+    res.json({
+      success: true,
+      reply: reply
     });
   }
 });
