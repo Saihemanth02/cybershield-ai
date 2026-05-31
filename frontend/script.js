@@ -1,9 +1,9 @@
 /* ============================================================
    API GATEWAY & CORS CONFIGURATION
    ============================================================ */
-const API_BASE = (window.location.origin.includes('localhost:3000') || window.location.origin.includes('vercel.app'))
-  ? ''
-  : 'http://localhost:3000';
+const API_BASE = (window.location.protocol === 'file:' || ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port !== '3000'))
+  ? 'http://localhost:3000'
+  : '';
 
 /* ============================================================
    MATRIX RAIN CANVAS ENGINE
@@ -101,6 +101,12 @@ function showToast(message, icon = '🛡️') {
 window.addEventListener('load', () => {
   setTimeout(() => {
     showToast("CyberShield AI Sandbox Console Online", "🛡️");
+    
+    if (window.location.protocol === 'file:') {
+      setTimeout(() => {
+        showToast("Warning: Local file protocol detected. Please open http://localhost:3000 to avoid API blocks.", "⚠️");
+      }, 1500);
+    }
   }, 1000);
 });
 
