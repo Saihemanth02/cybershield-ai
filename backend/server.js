@@ -8,10 +8,10 @@ import { fileURLToPath } from 'url';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { academyLimiter, validatePlanInput, validateChatInput } from './middleware/security.js';
 
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -214,7 +214,7 @@ System Instructions & Output Requirements:
    - <h3>MITRE ATT&CK Mitigation Matrix</h3>: Mitigation mappings to defend against the vulnerabilities mentioned in the goals.`;
 
     const ai = getGenAI();
-    const model = ai.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const result = await model.generateContent(systemPrompt);
     let planHtml = result.response.text().trim();
@@ -279,7 +279,7 @@ Instructions:
 
     const ai = getGenAI();
     // Start a chat session using the history
-    const chatModel = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const chatModel = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
     
     // We prepend the system instructions as a system prompt. In the Gemini SDK, we can pass systemInstruction in configuration
     const chat = chatModel.startChat({
@@ -287,7 +287,9 @@ Instructions:
       generationConfig: {
         maxOutputTokens: 800,
       },
-      systemInstruction: systemInstruction
+      systemInstruction: {
+        parts: [{ text: systemInstruction }]
+      }
     });
 
     const result = await chat.sendMessage(message);
