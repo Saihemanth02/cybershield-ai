@@ -23,11 +23,21 @@ export const validatePlanInput = (req, res, next) => {
     });
   }
 
-  const validLevels = ['beginner', 'intermediate', 'advanced', 'expert'];
-  if (typeof level !== 'string' || !validLevels.includes(level.toLowerCase())) {
+  const validLevels = [
+    'absolute beginner (no it background)',
+    'it basics (know computers & networking)',
+    'developer (know programming)',
+    'sysadmin/network engineer',
+    'intermediate (some security knowledge)',
+    'beginner',
+    'intermediate',
+    'advanced',
+    'expert'
+  ];
+  if (typeof level !== 'string' || !validLevels.includes(level.toLowerCase().trim())) {
     return res.status(400).json({
       error: "Bad Request",
-      message: `Required parameter 'level' must be one of: ${validLevels.join(', ')}.`
+      message: "Required parameter 'level' must be a valid skill level."
     });
   }
 
@@ -38,28 +48,38 @@ export const validatePlanInput = (req, res, next) => {
     });
   }
 
-  const parsedHours = Number(hours);
-  if (isNaN(parsedHours) || parsedHours <= 0 || parsedHours > 168) {
+  let sanitizedHours = '';
+  if (typeof hours === 'number') {
+    sanitizedHours = `${hours} hrs`;
+  } else if (typeof hours === 'string' && hours.trim().length > 0) {
+    sanitizedHours = hours.trim();
+  } else {
     return res.status(400).json({
       error: "Bad Request",
-      message: "Required parameter 'hours' must be a valid number between 1 and 168."
+      message: "Required parameter 'hours' must be a non-empty string or a valid number."
     });
   }
 
-  if (typeof struggle !== 'string' || struggle.trim().length === 0) {
-    return res.status(400).json({
-      error: "Bad Request",
-      message: "Required parameter 'struggle' must be a non-empty string."
-    });
+  let sanitizedStruggle = "General cybersecurity guidance & isolated lab configuration setup.";
+  if (struggle !== undefined && struggle !== null) {
+    if (typeof struggle !== 'string') {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Optional parameter 'struggle' must be a string."
+      });
+    }
+    if (struggle.trim().length > 0) {
+      sanitizedStruggle = struggle.trim();
+    }
   }
 
   // Sanitize values
   req.sanitizedBody = {
     name: name.trim(),
-    level: level.trim().toLowerCase(),
+    level: level.trim(),
     goal: goal.trim(),
-    hours: parsedHours,
-    struggle: struggle.trim()
+    hours: sanitizedHours,
+    struggle: sanitizedStruggle
   };
 
   next();
@@ -94,10 +114,10 @@ export const validateChatInput = (req, res, next) => {
         });
       }
 
-      if (item.role !== 'user' && item.role !== 'model') {
+      if (item.role !== 'user' && item.role !== 'model' && item.role !== 'ai') {
         return res.status(400).json({
           error: "Bad Request",
-          message: `History entry at index ${i} has an invalid role. Must be 'user' or 'model'.`
+          message: `History entry at index ${i} has an invalid role. Must be 'user', 'model', or 'ai'.`
         });
       }
 

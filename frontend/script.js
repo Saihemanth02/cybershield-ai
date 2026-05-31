@@ -246,27 +246,19 @@ function startCTF(scenarioName) {
 }
 
 /* ============================================================
-   AI CUSTOM SKILLS FORM MULTI-SELECTOR
-============================================================ */
-const skillBtns = document.querySelectorAll('.skill-btn');
-const goalInput = document.getElementById('student-goal');
-const selectedGoals = new Set();
+   AI CUSTOM SKILLS FORM HOURS SINGLE-SELECTOR
+   ============================================================ */
+const hourBtns = document.querySelectorAll('.hour-btn');
+const hoursInput = document.getElementById('student-hours');
 
-skillBtns.forEach(btn => {
+hourBtns.forEach(btn => {
   btn.addEventListener('click', () => {
-    const val = btn.getAttribute('data-value');
+    // Single-select behavior: deactivate all other buttons
+    hourBtns.forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
     
-    if (btn.classList.contains('selected')) {
-      btn.classList.remove('selected');
-      selectedGoals.delete(val);
-    } else {
-      btn.classList.add('selected');
-      selectedGoals.add(val);
-    }
-    
-    // Compile values into hidden goal input
-    if (goalInput) {
-      goalInput.value = Array.from(selectedGoals).join(', ');
+    if (hoursInput) {
+      hoursInput.value = btn.getAttribute('data-value');
     }
   });
 });
@@ -277,7 +269,7 @@ skillBtns.forEach(btn => {
 async function generatePlan() {
   const name = document.getElementById('student-name').value;
   const level = document.getElementById('student-level').value;
-  const goal = goalInput ? goalInput.value : '';
+  const goal = document.getElementById('student-goal').value;
   const hours = document.getElementById('student-hours').value;
   const struggle = document.getElementById('student-struggle').value;
 
@@ -290,10 +282,10 @@ async function generatePlan() {
 
   if (errorPanel) errorPanel.classList.remove('show');
 
-  // Client side validation check
-  if (!name || !level || !goal || !hours || !struggle) {
+  // Client side validation check (struggle is optional)
+  if (!name || !level || !goal || !hours) {
     if (errorPanel) {
-      errorPanel.textContent = "Validation Failure: Please specify both student codename, objectives, and struggle fields.";
+      errorPanel.textContent = "Validation Failure: Please specify name, skill tier, goal, and study hours commitment.";
       errorPanel.classList.add('show');
     }
     showToast("Form payload is incomplete.", "❌");
@@ -306,7 +298,7 @@ async function generatePlan() {
   if (loadingState) loadingState.classList.add('show');
   if (generateSubmitBtn) {
     generateSubmitBtn.disabled = true;
-    generateSubmitBtn.textContent = "Deploying Matrix...";
+    generateSubmitBtn.innerHTML = "🛡️ Deploying Matrix...";
   }
 
   try {
@@ -346,7 +338,7 @@ async function generatePlan() {
   } finally {
     if (generateSubmitBtn) {
       generateSubmitBtn.disabled = false;
-      generateSubmitBtn.textContent = "Generate Curriculum";
+      generateSubmitBtn.innerHTML = "🛡️ Generate My Learning Plan";
     }
   }
 }
