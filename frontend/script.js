@@ -356,6 +356,15 @@ async function generatePlan() {
   }
 }
 
+// Bind form submit event listener
+const syllabusForm = document.getElementById('syllabus-form');
+if (syllabusForm) {
+  syllabusForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    generatePlan();
+  });
+}
+
 /* ============================================================
    CONVERSATIONAL AI CONSOLE (POST /api/chat)
 ============================================================ */
