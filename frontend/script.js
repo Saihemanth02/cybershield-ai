@@ -7,6 +7,15 @@ const API_BASE = (window.location.protocol === 'file:' || ((window.location.host
   : '';
 
 /* ============================================================
+   CONTROL CENTER & FALLBACK OPERATION TRACKING
+   ============================================================ */
+let customApiKey = localStorage.getItem('custom_gemini_api_key') || '';
+let lastSyllabusParams = null;
+let lastChatParams = null;
+let syllabusIsFallback = false;
+let chatIsFallback = false;
+
+/* ============================================================
    MATRIX RAIN CANVAS ENGINE
 ============================================================ */
 const matrixCanvas = document.getElementById('matrix-canvas');
@@ -301,12 +310,30 @@ hourBtns.forEach(btn => {
 /* ============================================================
    RAG SYLLABUS GENERATOR PIPELINE (POST /api/generate-plan)
 ============================================================ */
-async function generatePlan() {
+async function generatePlan(params = null) {
   const nameEl = document.getElementById('student-name');
   const levelEl = document.getElementById('student-level');
   const goalEl = document.getElementById('student-goal');
   const hoursEl = document.getElementById('student-hours');
   const struggleEl = document.getElementById('student-struggle');
+
+  if (params) {
+    if (nameEl) nameEl.value = params.name;
+    if (levelEl) levelEl.value = params.level;
+    if (goalEl) goalEl.value = params.goal;
+    if (hoursEl) {
+      hoursEl.value = params.hours;
+      const hourBtns = document.querySelectorAll('.hour-btn');
+      hourBtns.forEach(btn => {
+        if (btn.getAttribute('data-value') === params.hours) {
+          btn.classList.add('selected');
+        } else {
+          btn.classList.remove('selected');
+        }
+      });
+    }
+    if (struggleEl) struggleEl.value = params.struggle;
+  }
 
   const errorPanel = document.getElementById('form-error-panel');
   const placeholderState = document.getElementById('placeholder-state');
@@ -343,6 +370,9 @@ async function generatePlan() {
     return;
   }
 
+  // Save params for retry capability
+  lastSyllabusParams = { name, level, goal, hours, struggle };
+
   // Orchestrate active state transitions
   if (placeholderState) placeholderState.style.display = 'none';
   if (resultState) resultState.classList.remove('show');
@@ -356,7 +386,8 @@ async function generatePlan() {
     const response = await fetch(`${API_BASE}/api/generate-plan`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        ...(customApiKey ? { 'x-gemini-api-key': customApiKey } : {})
       },
       body: JSON.stringify({ name, level, goal, hours, struggle })
     });
@@ -370,11 +401,31 @@ async function generatePlan() {
     // Populate response HTML output safely
     if (resultBody) {
       resultBody.innerHTML = data.html;
+      
+      // If output is fallback, append a retry button
+      if (data.isFallback) {
+        const retryBtn = document.createElement('button');
+        retryBtn.type = 'button';
+        retryBtn.className = 'retry-inline-btn';
+        retryBtn.innerHTML = '🔄 Retry with Live AI';
+        retryBtn.onclick = () => {
+          generatePlan(lastSyllabusParams);
+        };
+        resultBody.appendChild(retryBtn);
+      }
     }
+
+    syllabusIsFallback = !!data.isFallback;
+    updateFallbackUI();
 
     if (loadingState) loadingState.classList.remove('show');
     if (resultState) resultState.classList.add('show');
-    showToast("Curriculum compiled successfully via RAG engine.", "✅");
+    
+    if (syllabusIsFallback) {
+      showToast("Curriculum loaded in Fallback RAG mode.", "⚠️");
+    } else {
+      showToast("Curriculum compiled successfully via RAG engine.", "✅");
+    }
 
   } catch (error) {
     console.error("AI Syllabus generation error:", error);
@@ -386,6 +437,8 @@ async function generatePlan() {
       errorPanel.classList.add('show');
     }
     showToast("Syllabus generation pipeline failed.", "❌");
+    syllabusIsFallback = true;
+    updateFallbackUI();
   } finally {
     if (generateSubmitBtn) {
       generateSubmitBtn.disabled = false;
@@ -428,7 +481,7 @@ if (chatInputField) {
 ============================================================ */
 const activeHistory = []; // Local queue structure for memory buffers
 
-async function sendChat() {
+async function sendChat(params = null) {
   try {
     const inputEl = document.getElementById('chat-input-field');
     const containerEl = document.getElementById('chat-messages-container');
@@ -439,12 +492,25 @@ async function sendChat() {
       return;
     }
 
-    const userMessage = inputEl.value.trim();
+    const userMessage = params ? params.message : inputEl.value.trim();
     if (userMessage.length === 0) return;
 
-    // Render User Message bubble
-    appendChatBubble('user', userMessage);
-    inputEl.value = '';
+    // If retrying, remove the last AI message if it was a fallback
+    if (params) {
+      const messages = containerEl.querySelectorAll('.msg.ai');
+      if (messages.length > 0) {
+        const lastMsg = messages[messages.length - 1];
+        if (lastMsg.classList.contains('fallback-bubble')) {
+          lastMsg.remove();
+        }
+      }
+    } else {
+      // Render User Message bubble
+      appendChatBubble('user', userMessage);
+      inputEl.value = '';
+    }
+
+    lastChatParams = { message: userMessage };
 
     // Append Typing Indicator node
     const typingIndicator = appendTypingIndicator();
@@ -463,7 +529,8 @@ async function sendChat() {
       const response = await fetch(`${API_BASE}/api/chat`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...(customApiKey ? { 'x-gemini-api-key': customApiKey } : {})
         },
         body: JSON.stringify({
           message: userMessage,
@@ -483,15 +550,20 @@ async function sendChat() {
       }
 
       // Render AI Response bubble
-      appendChatBubble('ai', data.reply);
+      appendChatBubble('ai', data.reply, data.isFallback);
 
-      // Save state transaction inside memory buffers
-      activeHistory.push({ role: 'user', message: userMessage });
-      activeHistory.push({ role: 'ai', message: data.reply });
+      chatIsFallback = !!data.isFallback;
+      updateFallbackUI();
 
-      // Limit memory size in client context (keep last 10 messages)
-      if (activeHistory.length > 20) {
-        activeHistory.splice(0, 2);
+      if (!chatIsFallback) {
+        // Save state transaction inside memory buffers
+        activeHistory.push({ role: 'user', message: userMessage });
+        activeHistory.push({ role: 'ai', message: data.reply });
+
+        // Limit memory size in client context (keep last 10 messages)
+        if (activeHistory.length > 20) {
+          activeHistory.splice(0, 2);
+        }
       }
 
     } catch (error) {
@@ -500,8 +572,10 @@ async function sendChat() {
         removeTypingIndicator(typingIndicator);
       }
 
-      appendChatBubble('ai', `CONNECTION TERMINATED: ${error.message}. Verify network adapter statuses or configure server local API keys.`);
+      appendChatBubble('ai', `CONNECTION TERMINATED: ${error.message}. Verify network adapter statuses or configure server local API keys.`, true);
       showToast("Terminal message transmission failed.", "❌");
+      chatIsFallback = true;
+      updateFallbackUI();
     } finally {
       if (btnEl) {
         btnEl.disabled = false;
@@ -516,7 +590,7 @@ async function sendChat() {
 }
 
 // Chat Helper: Append standard bubbles
-function appendChatBubble(role, text) {
+function appendChatBubble(role, text, isFallback = false) {
   const containerEl = document.getElementById('chat-messages-container');
   if (!containerEl) {
     console.error("Mentor Terminal Error: 'chat-messages-container' not found.");
@@ -525,6 +599,9 @@ function appendChatBubble(role, text) {
 
   const bubble = document.createElement('div');
   bubble.className = `msg ${role}`;
+  if (role === 'ai' && isFallback) {
+    bubble.classList.add('fallback-bubble');
+  }
 
   const label = document.createElement('div');
   label.className = 'msg-label';
@@ -548,6 +625,20 @@ function appendChatBubble(role, text) {
 
   bubble.appendChild(label);
   bubble.appendChild(bodyText);
+
+  // If fallback AI, append a retry button
+  if (role === 'ai' && isFallback) {
+    const retryBtn = document.createElement('button');
+    retryBtn.type = 'button';
+    retryBtn.className = 'retry-inline-btn';
+    retryBtn.style.display = 'block';
+    retryBtn.innerHTML = '🔄 Retry with Live AI';
+    retryBtn.onclick = () => {
+      sendChat(lastChatParams);
+    };
+    bubble.appendChild(retryBtn);
+  }
+
   containerEl.appendChild(bubble);
 }
 
@@ -585,6 +676,143 @@ function removeTypingIndicator(element) {
   if (element && element.parentNode) {
     element.parentNode.removeChild(element);
   }
+}
+
+/* ============================================================
+   CONTROL CENTER SETTINGS & RETRY BINDINGS
+============================================================ */
+// DOM Elements
+const settingsModal = document.getElementById('settings-modal');
+const settingsToggleBtn = document.getElementById('settings-toggle-btn');
+const settingsCloseBtn = document.getElementById('settings-close-btn');
+const apiKeyInput = document.getElementById('custom-api-key');
+const toggleKeyVisibility = document.getElementById('toggle-key-visibility');
+const saveKeyBtn = document.getElementById('save-key-btn');
+const clearKeyBtn = document.getElementById('clear-key-btn');
+const keyStatusIndicator = document.getElementById('key-status-indicator');
+const syllabusFallbackStatus = document.getElementById('syllabus-fallback-status');
+const chatFallbackStatus = document.getElementById('chat-fallback-status');
+const retryAllBtn = document.getElementById('retry-all-btn');
+
+// Init values
+if (apiKeyInput) {
+  apiKeyInput.value = customApiKey;
+}
+updateKeyStatusUI();
+updateFallbackUI();
+
+// Event Listeners
+if (settingsToggleBtn) {
+  settingsToggleBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (settingsModal) settingsModal.classList.add('open');
+  });
+}
+if (settingsCloseBtn) {
+  settingsCloseBtn.addEventListener('click', () => {
+    if (settingsModal) settingsModal.classList.remove('open');
+  });
+}
+// Close modal on overlay click
+if (settingsModal) {
+  settingsModal.addEventListener('click', (e) => {
+    if (e.target === settingsModal) {
+      settingsModal.classList.remove('open');
+    }
+  });
+}
+
+// Password/Visibility toggle
+if (toggleKeyVisibility && apiKeyInput) {
+  toggleKeyVisibility.addEventListener('click', () => {
+    if (apiKeyInput.type === 'password') {
+      apiKeyInput.type = 'text';
+      toggleKeyVisibility.textContent = '🔒';
+    } else {
+      apiKeyInput.type = 'password';
+      toggleKeyVisibility.textContent = '👁️';
+    }
+  });
+}
+
+// Save Key
+if (saveKeyBtn && apiKeyInput) {
+  saveKeyBtn.addEventListener('click', () => {
+    const keyVal = apiKeyInput.value.trim();
+    if (keyVal.length === 0) {
+      showToast("Please enter an API Key or clear it.", "⚠️");
+      return;
+    }
+    customApiKey = keyVal;
+    localStorage.setItem('custom_gemini_api_key', customApiKey);
+    showToast("API Key saved locally.", "✅");
+    updateKeyStatusUI();
+  });
+}
+
+// Clear Key
+if (clearKeyBtn && apiKeyInput) {
+  clearKeyBtn.addEventListener('click', () => {
+    customApiKey = '';
+    apiKeyInput.value = '';
+    localStorage.removeItem('custom_gemini_api_key');
+    showToast("Custom API Key cleared. Defaulting to system.", "🛡️");
+    updateKeyStatusUI();
+  });
+}
+
+// Helper: update key status in modal
+function updateKeyStatusUI() {
+  if (!keyStatusIndicator) return;
+  if (customApiKey) {
+    keyStatusIndicator.innerHTML = '<span class="status-dot green"></span> Custom Gemini Key Active';
+  } else {
+    keyStatusIndicator.innerHTML = '<span class="status-dot red"></span> Using system default API key';
+  }
+}
+
+// Helper: update fallback state & retry buttons
+function updateFallbackUI() {
+  if (syllabusFallbackStatus) {
+    if (syllabusIsFallback) {
+      syllabusFallbackStatus.innerHTML = '<span>Syllabus Generator:</span> <span class="status-tag fallback-rag">Fallback Mode (Local RAG)</span>';
+    } else {
+      syllabusFallbackStatus.innerHTML = '<span>Syllabus Generator:</span> <span class="status-tag active-ai">Active AI (Live)</span>';
+    }
+  }
+
+  if (chatFallbackStatus) {
+    if (chatIsFallback) {
+      chatFallbackStatus.innerHTML = '<span>Mentor Terminal:</span> <span class="status-tag fallback-rag">Fallback Mode (Local RAG)</span>';
+    } else {
+      chatFallbackStatus.innerHTML = '<span>Mentor Terminal:</span> <span class="status-tag active-ai">Active AI (Live)</span>';
+    }
+  }
+
+  if (retryAllBtn) {
+    const canRetry = (syllabusIsFallback && lastSyllabusParams) || (chatIsFallback && lastChatParams);
+    retryAllBtn.disabled = !canRetry;
+  }
+}
+
+// Retry All Action
+if (retryAllBtn) {
+  retryAllBtn.addEventListener('click', async () => {
+    if (settingsModal) settingsModal.classList.remove('open');
+    showToast("Retrying all failed operations with new key...", "🔄");
+
+    let promises = [];
+    if (syllabusIsFallback && lastSyllabusParams) {
+      promises.push(generatePlan(lastSyllabusParams));
+    }
+    if (chatIsFallback && lastChatParams) {
+      promises.push(sendChat(lastChatParams));
+    }
+
+    if (promises.length > 0) {
+      await Promise.all(promises);
+    }
+  });
 }
 
 // Expose functions globally to ensure inline HTML event handlers resolve correctly under all execution scopes

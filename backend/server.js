@@ -62,16 +62,16 @@ try {
   console.error("Failed to load knowledge base:", error);
 }
 
-// Lazy Gemini API client initialization
-let genAI = null;
-function getGenAI() {
-  if (genAI) return genAI;
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey || apiKey === 'YOUR_GEMINI_API_KEY_HERE' || apiKey.trim() === '') {
-    throw new Error("GEMINI_API_KEY is not configured or is using default placeholder. Please configure .env with a valid Google Gemini API key.");
+// Dynamic Gemini API client initialization
+function getGenAI(req) {
+  let apiKey = req ? (req.headers['x-gemini-api-key'] || req.headers['x-api-key']) : null;
+  if (!apiKey || apiKey.trim() === '') {
+    apiKey = process.env.GEMINI_API_KEY;
   }
-  genAI = new GoogleGenerativeAI(apiKey);
-  return genAI;
+  if (!apiKey || apiKey === 'YOUR_GEMINI_API_KEY_HERE' || apiKey.trim() === '') {
+    throw new Error("GEMINI_API_KEY is not configured. Please configure your API key.");
+  }
+  return new GoogleGenerativeAI(apiKey);
 }
 
 // Simple English Stop Words to filter search tokens
@@ -220,7 +220,7 @@ System Instructions & Output Requirements:
    - <h3>Tool Practice Exercises</h3>: Practical execution scripts (e.g., Nmap parameters, Burp configuration, Metasploit parameters) matching the skill level.
    - <h3>MITRE ATT&CK Mitigation Matrix</h3>: Mitigation mappings to defend against the vulnerabilities mentioned in the goals.`;
 
-    const ai = getGenAI();
+    const ai = getGenAI(req);
     const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const result = await model.generateContent(systemPrompt);
@@ -242,7 +242,8 @@ System Instructions & Output Requirements:
       name,
       level,
       goal,
-      html: planHtml
+      html: planHtml,
+      isFallback: false
     });
 
   } catch (error) {
@@ -295,7 +296,8 @@ System Instructions & Output Requirements:
       name,
       level,
       goal,
-      html: fallbackHtml
+      html: fallbackHtml,
+      isFallback: true
     });
   }
 });
@@ -324,7 +326,7 @@ Instructions:
 4. If the retrieved context references are relevant, prioritize incorporating them into your answers (like exact nmap syntaxes, subnet designs, or vulnerability mitigations).
 5. Always wrap commands, paths, and config directives in HTML <code> tags.`;
 
-    const ai = getGenAI();
+    const ai = getGenAI(req);
     const chatModel = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
     
     const chat = chatModel.startChat({
@@ -342,7 +344,8 @@ Instructions:
 
     res.json({
       success: true,
-      reply: replyText
+      reply: replyText,
+      isFallback: false
     });
 
   } catch (error) {
@@ -368,7 +371,8 @@ Instructions:
 
     res.json({
       success: true,
-      reply: reply
+      reply: reply,
+      isFallback: true
     });
   }
 });

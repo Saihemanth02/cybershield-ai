@@ -38,6 +38,7 @@
       <li><a href="#practice">AI Path</a></li>
       <li><a href="#chat">AI Terminal</a></li>
       <li><a href="#certs">Credentials</a></li>
+      <li><a href="#" id="settings-toggle-btn" style="color: var(--cyan);">⚙️ Settings</a></li>
     </ul>
     <a href="#practice" class="nav-cta">Initialize Academy</a>
     <div class="nav-hamburger" id="hamburger">
@@ -635,6 +636,47 @@
       <a href="#">Terms of Engagement</a>
     </div>
   </footer>
+
+  <!-- CONTROL CENTER SETTINGS MODAL -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="settings-modal-card">
+      <div class="settings-modal-header">
+        <div class="settings-modal-title">🛡️ SHIELD CONTROL CENTER</div>
+        <button type="button" class="settings-modal-close" id="settings-close-btn">&times;</button>
+      </div>
+      <div class="settings-modal-body">
+        <p class="settings-help-text">Configure a custom Google Gemini API Key (starts with <code>AIzaSy</code>). If left empty, CyberShield AI will attempt to use the backend-configured default key.</p>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="custom-api-key" style="display:block; font-family:var(--font-mono); font-size:.75rem; letter-spacing:2px; color:var(--text2); margin-bottom:10px; text-transform:uppercase; font-weight: bold;">Google Gemini API Key</label>
+          <div class="api-key-input-container">
+            <input type="password" id="custom-api-key" placeholder="AIzaSy..." />
+            <button type="button" class="toggle-password-btn" id="toggle-key-visibility">👁️</button>
+          </div>
+        </div>
+        <div class="settings-actions">
+          <button type="button" class="btn-primary" id="save-key-btn">Save Configurations</button>
+          <button type="button" class="btn-secondary" id="clear-key-btn">Clear Key</button>
+        </div>
+        <div class="key-status" id="key-status-indicator">
+          <span class="status-dot red"></span> Using system default API key
+        </div>
+        <hr class="settings-divider" />
+        <div class="retry-section">
+          <h4>SYSTEM OPERATION BACKUP STATUS</h4>
+          <p class="settings-help-text">If functions are running in local fallback mode (no live AI), retry them once you supply a valid key.</p>
+          <div class="fallback-status-list">
+            <div class="fallback-status-item" id="syllabus-fallback-status">
+              <span>Syllabus Generator:</span> <span class="status-tag active-ai">Active AI (Live)</span>
+            </div>
+            <div class="fallback-status-item" id="chat-fallback-status">
+              <span>Mentor Terminal:</span> <span class="status-tag active-ai">Active AI (Live)</span>
+            </div>
+          </div>
+          <button type="button" class="btn-primary retry-all-btn" id="retry-all-btn" disabled>🛡️ Retry All with Live AI</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
