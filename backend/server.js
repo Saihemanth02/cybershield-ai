@@ -191,6 +191,45 @@ function retrieveContext(queryText) {
   return matches.slice(0, 3).map(m => `[${m.category}] Context:\n${m.content}`).join('\n\n========================\n\n');
 }
 
+// Helper for API Call Retries in case of transient/quota errors (500, 503, 429, etc.)
+async function generateContentWithRetry(model, prompt, retries = 3, delay = 1000) {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const result = await model.generateContent(prompt);
+      return result;
+    } catch (error) {
+      const errMsg = error.message || '';
+      const isTransient = errMsg.includes('503') || errMsg.includes('500') || errMsg.includes('Service Unavailable') || errMsg.includes('Overloaded') || errMsg.includes('exhausted') || errMsg.includes('429');
+      if (isTransient && i < retries) {
+        console.warn(`Transient Gemini API error encountered (${errMsg.substring(0, 150)}). Retrying in ${delay}ms... (Attempt ${i + 1}/${retries})`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        delay *= 2;
+      } else {
+        throw error;
+      }
+    }
+  }
+}
+
+async function sendMessageWithRetry(chat, message, retries = 3, delay = 1000) {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const result = await chat.sendMessage(message);
+      return result;
+    } catch (error) {
+      const errMsg = error.message || '';
+      const isTransient = errMsg.includes('503') || errMsg.includes('500') || errMsg.includes('Service Unavailable') || errMsg.includes('Overloaded') || errMsg.includes('exhausted') || errMsg.includes('429');
+      if (isTransient && i < retries) {
+        console.warn(`Transient Gemini API error encountered (${errMsg.substring(0, 150)}). Retrying in ${delay}ms... (Attempt ${i + 1}/${retries})`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        delay *= 2;
+      } else {
+        throw error;
+      }
+    }
+  }
+}
+
 // ROUTE 1: Dynamic Syllabus Generator (RAG-Driven)
 app.post('/api/generate-plan', academyLimiter, validatePlanInput, async (req, res) => {
   const { name, level, goal, hours, struggle } = req.sanitizedBody;
@@ -223,7 +262,7 @@ System Instructions & Output Requirements:
     const ai = getGenAI(req);
     const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-    const result = await model.generateContent(systemPrompt);
+    const result = await generateContentWithRetry(model, systemPrompt);
     let planHtml = result.response.text().trim();
 
     // Secondary sanitization to strip any markdown code block wrappers if generated
@@ -339,7 +378,7 @@ Instructions:
       }
     });
 
-    const result = await chat.sendMessage(message);
+    const result = await sendMessageWithRetry(chat, message);
     const replyText = result.response.text().trim();
 
     res.json({
