@@ -1,4 +1,4 @@
-# CyberShield AI — Cybersecurity Academy & RAG Matrix
+# CyberShield & GenAI — Cybersecurity Academy & RAG Matrix
 **Brand System:** S.S.Hemanth Kumar (Security Researcher)
 
 An enterprise-ready, RAG-driven cybersecurity syllabus planner and mentor terminal. Designed with a luxury cyberpunk, glassmorphic layout, canvas animations, and decoupled backend APIs powered by Google Gemini and a local JSON-based knowledge base.
